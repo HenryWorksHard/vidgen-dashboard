@@ -4,104 +4,109 @@ import Link from 'next/link';
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-gray-900 text-white">
+    <div className="h-full">
       {/* Header */}
-      <header className="border-b border-gray-800 px-6 py-4">
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold">🎬 VidGen Dashboard</h1>
-          <nav className="flex gap-6">
-            <Link href="/gallery" className="hover:text-blue-400">Gallery</Link>
-            <Link href="/characters" className="hover:text-blue-400">Characters</Link>
-            <Link href="/wardrobes" className="hover:text-blue-400">Wardrobes</Link>
-            <Link href="/environments" className="hover:text-blue-400">Environments</Link>
-            <Link href="/flow" className="hover:text-blue-400">Flow View</Link>
-          </nav>
+      <header className="flex items-center justify-between px-6 py-4 border-b border-[#2a2a2a]">
+        <div>
+          <h1 className="text-lg font-semibold">Dashboard</h1>
+          <p className="text-sm text-gray-500">AI Video Generation</p>
         </div>
+        <button className="px-4 py-2 text-sm bg-green-600 rounded-lg hover:bg-green-700 transition">
+          + New Generation
+        </button>
       </header>
 
-      {/* Main Content */}
-      <main className="p-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {/* Characters Card */}
-          <Link href="/characters" className="bg-gray-800 rounded-lg p-6 hover:bg-gray-700 transition">
-            <div className="text-4xl mb-4">👤</div>
-            <h2 className="text-xl font-semibold mb-2">Characters</h2>
-            <p className="text-gray-400">Manage character models with face references</p>
+      {/* Content */}
+      <div className="p-6">
+        {/* Quick Actions */}
+        <div className="grid grid-cols-4 gap-4 mb-8">
+          <Link 
+            href="/flow"
+            className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl p-4 hover:border-[#3a3a3a] transition group"
+          >
+            <div className="w-10 h-10 bg-green-600/20 rounded-lg flex items-center justify-center mb-3 group-hover:bg-green-600/30 transition">
+              <span className="text-lg">🔀</span>
+            </div>
+            <h3 className="font-medium text-sm mb-1">Generation Flow</h3>
+            <p className="text-xs text-gray-500">Design your pipeline</p>
           </Link>
 
-          {/* Wardrobes Card */}
-          <Link href="/wardrobes" className="bg-gray-800 rounded-lg p-6 hover:bg-gray-700 transition">
-            <div className="text-4xl mb-4">👔</div>
-            <h2 className="text-xl font-semibold mb-2">Wardrobes</h2>
-            <p className="text-gray-400">Clothing and outfit configurations</p>
+          <Link 
+            href="/characters"
+            className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl p-4 hover:border-[#3a3a3a] transition group"
+          >
+            <div className="w-10 h-10 bg-blue-600/20 rounded-lg flex items-center justify-center mb-3 group-hover:bg-blue-600/30 transition">
+              <span className="text-lg">👤</span>
+            </div>
+            <h3 className="font-medium text-sm mb-1">Characters</h3>
+            <p className="text-xs text-gray-500">Manage face refs</p>
           </Link>
 
-          {/* Environments Card */}
-          <Link href="/environments" className="bg-gray-800 rounded-lg p-6 hover:bg-gray-700 transition">
-            <div className="text-4xl mb-4">🌍</div>
-            <h2 className="text-xl font-semibold mb-2">Environments</h2>
-            <p className="text-gray-400">Scene locations and settings</p>
+          <Link 
+            href="/wardrobes"
+            className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl p-4 hover:border-[#3a3a3a] transition group"
+          >
+            <div className="w-10 h-10 bg-purple-600/20 rounded-lg flex items-center justify-center mb-3 group-hover:bg-purple-600/30 transition">
+              <span className="text-lg">👔</span>
+            </div>
+            <h3 className="font-medium text-sm mb-1">Wardrobes</h3>
+            <p className="text-xs text-gray-500">Outfit configs</p>
           </Link>
 
-          {/* Gallery Card */}
-          <Link href="/gallery" className="bg-gray-800 rounded-lg p-6 hover:bg-gray-700 transition">
-            <div className="text-4xl mb-4">🖼️</div>
-            <h2 className="text-xl font-semibold mb-2">Gallery</h2>
-            <p className="text-gray-400">View all generated images and videos</p>
+          <Link 
+            href="/gallery"
+            className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl p-4 hover:border-[#3a3a3a] transition group"
+          >
+            <div className="w-10 h-10 bg-orange-600/20 rounded-lg flex items-center justify-center mb-3 group-hover:bg-orange-600/30 transition">
+              <span className="text-lg">🖼️</span>
+            </div>
+            <h3 className="font-medium text-sm mb-1">Gallery</h3>
+            <p className="text-xs text-gray-500">View outputs</p>
           </Link>
         </div>
 
         {/* Recent Generations */}
-        <section className="mt-12">
-          <h2 className="text-xl font-semibold mb-4">Recent Generations</h2>
-          <div className="bg-gray-800 rounded-lg p-6">
-            <p className="text-gray-400">No generations yet. Use the VidGen skill to create content!</p>
-            <code className="block mt-4 bg-gray-900 p-3 rounded text-sm text-green-400">
-              ./vidgen.sh "james in tokyo-night wearing streetwear, walks through neon crowds"
-            </code>
-          </div>
-        </section>
-
-        {/* Flow Preview */}
-        <section className="mt-12">
+        <div className="mb-8">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold">Generation Flow</h2>
-            <Link href="/flow" className="text-blue-400 hover:underline">View Full Flow →</Link>
+            <h2 className="font-medium">Recent Generations</h2>
+            <Link href="/gallery" className="text-sm text-gray-400 hover:text-white">
+              View all →
+            </Link>
           </div>
-          <div className="bg-gray-800 rounded-lg p-6">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <div className="bg-blue-600 p-4 rounded-lg">
-                  <span className="text-2xl">👤</span>
-                </div>
-                <div className="text-gray-400">→</div>
-                <div className="bg-purple-600 p-4 rounded-lg">
-                  <span className="text-2xl">👔</span>
-                </div>
-                <div className="text-gray-400">→</div>
-                <div className="bg-green-600 p-4 rounded-lg">
-                  <span className="text-2xl">🌍</span>
-                </div>
-                <div className="text-gray-400">→</div>
-                <div className="bg-orange-600 p-4 rounded-lg">
-                  <span className="text-2xl">📸</span>
-                </div>
-                <div className="text-gray-400">→</div>
-                <div className="bg-red-600 p-4 rounded-lg">
-                  <span className="text-2xl">🎬</span>
-                </div>
-              </div>
-            </div>
-            <div className="flex items-center justify-between mt-4 text-sm text-gray-400">
-              <span>Character</span>
-              <span>Wardrobe</span>
-              <span>Environment</span>
-              <span>Image</span>
-              <span>Video</span>
+          <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl p-6">
+            <div className="text-center py-8">
+              <div className="text-4xl mb-3 opacity-50">🎬</div>
+              <p className="text-sm text-gray-400 mb-4">No generations yet</p>
+              <Link 
+                href="/flow"
+                className="inline-block px-4 py-2 text-sm bg-[#2a2a2a] rounded-lg hover:bg-[#3a3a3a] transition"
+              >
+                Create your first video
+              </Link>
             </div>
           </div>
-        </section>
-      </main>
+        </div>
+
+        {/* Quick Stats */}
+        <div className="grid grid-cols-4 gap-4">
+          <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl p-4">
+            <p className="text-2xl font-semibold">0</p>
+            <p className="text-xs text-gray-500 mt-1">Total Generations</p>
+          </div>
+          <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl p-4">
+            <p className="text-2xl font-semibold">1</p>
+            <p className="text-xs text-gray-500 mt-1">Characters</p>
+          </div>
+          <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl p-4">
+            <p className="text-2xl font-semibold">1</p>
+            <p className="text-xs text-gray-500 mt-1">Wardrobes</p>
+          </div>
+          <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl p-4">
+            <p className="text-2xl font-semibold">1</p>
+            <p className="text-xs text-gray-500 mt-1">Environments</p>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

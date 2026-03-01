@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Link from 'next/link';
 
 interface Generation {
   id: string;
@@ -40,57 +39,50 @@ export default function GalleryPage() {
   });
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white">
-      <header className="border-b border-gray-800 px-6 py-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Link href="/" className="text-gray-400 hover:text-white">← Back</Link>
-            <h1 className="text-2xl font-bold">🖼️ Gallery</h1>
-          </div>
-          <div className="flex gap-2">
-            <button 
-              className={`px-4 py-2 rounded ${filter === 'all' ? 'bg-blue-600' : 'bg-gray-700'}`}
-              onClick={() => setFilter('all')}
+    <div className="h-full">
+      <header className="flex items-center justify-between px-6 py-4 border-b border-[#2a2a2a]">
+        <div>
+          <h1 className="text-lg font-semibold">Gallery</h1>
+          <p className="text-sm text-gray-500">View all generated content</p>
+        </div>
+        <div className="flex gap-2">
+          {(['all', 'images', 'videos'] as const).map((f) => (
+            <button
+              key={f}
+              onClick={() => setFilter(f)}
+              className={`px-3 py-1.5 text-sm rounded-lg transition ${
+                filter === f 
+                  ? 'bg-[#2a2a2a] text-white' 
+                  : 'text-gray-400 hover:text-white'
+              }`}
             >
-              All
+              {f === 'all' && 'All'}
+              {f === 'images' && '📸 Images'}
+              {f === 'videos' && '🎬 Videos'}
             </button>
-            <button 
-              className={`px-4 py-2 rounded ${filter === 'images' ? 'bg-blue-600' : 'bg-gray-700'}`}
-              onClick={() => setFilter('images')}
-            >
-              📸 Images
-            </button>
-            <button 
-              className={`px-4 py-2 rounded ${filter === 'videos' ? 'bg-blue-600' : 'bg-gray-700'}`}
-              onClick={() => setFilter('videos')}
-            >
-              🎬 Videos
-            </button>
-          </div>
+          ))}
         </div>
       </header>
 
-      <main className="p-6">
+      <div className="p-6">
         {loading ? (
-          <div className="text-center py-12">
-            <div className="animate-spin text-4xl">⏳</div>
-            <p className="mt-4 text-gray-400">Loading gallery...</p>
+          <div className="flex items-center justify-center py-12">
+            <div className="animate-spin text-2xl">⏳</div>
           </div>
         ) : filteredGenerations.length === 0 ? (
-          <div className="text-center py-12 bg-gray-800 rounded-lg">
-            <div className="text-6xl mb-4">🖼️</div>
-            <h2 className="text-xl font-semibold mb-2">No Generations Yet</h2>
-            <p className="text-gray-400 mb-4">Generate your first video using the VidGen skill</p>
-            <code className="block bg-gray-900 p-3 rounded text-sm text-green-400">
-              ./vidgen.sh "james in tokyo-night wearing streetwear, walking through crowds"
-            </code>
+          <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl p-8 text-center">
+            <div className="text-4xl mb-3 opacity-50">🖼️</div>
+            <h3 className="font-medium mb-2">No Generations Yet</h3>
+            <p className="text-sm text-gray-400 mb-4">Use the Generation Flow to create your first video</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-4 gap-4">
             {filteredGenerations.map((gen) => (
-              <div key={gen.id} className="bg-gray-800 rounded-lg overflow-hidden hover:ring-2 hover:ring-blue-500 transition">
-                {/* Media Preview */}
-                <div className="aspect-video bg-gray-700 flex items-center justify-center relative">
+              <div 
+                key={gen.id} 
+                className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl overflow-hidden hover:border-[#3a3a3a] transition cursor-pointer"
+              >
+                <div className="aspect-video bg-[#0a0a0a] flex items-center justify-center relative">
                   {gen.videoPath ? (
                     <video 
                       src={`/api/media?path=${encodeURIComponent(gen.videoPath)}`}
@@ -104,46 +96,37 @@ export default function GalleryPage() {
                       className="w-full h-full object-cover"
                     />
                   ) : (
-                    <span className="text-4xl">
+                    <span className="text-2xl opacity-30">
                       {gen.status === 'processing' ? '🔄' : '⏳'}
                     </span>
                   )}
                   
-                  {/* Type Badge */}
-                  <div className="absolute top-2 right-2">
-                    {gen.videoPath && (
-                      <span className="bg-red-600 px-2 py-1 rounded text-xs">🎬 Video</span>
-                    )}
-                    {gen.imagePath && !gen.videoPath && (
-                      <span className="bg-orange-600 px-2 py-1 rounded text-xs">📸 Image</span>
-                    )}
-                  </div>
+                  {gen.videoPath && (
+                    <span className="absolute top-2 right-2 bg-red-600 px-2 py-0.5 rounded text-xs">
+                      🎬
+                    </span>
+                  )}
                 </div>
-                
-                {/* Info */}
-                <div className="p-4">
-                  <div className="flex gap-2 mb-2">
+                <div className="p-3">
+                  <div className="flex gap-1 mb-2">
                     {gen.character && (
-                      <span className="bg-blue-600/20 text-blue-400 px-2 py-1 rounded text-xs">
+                      <span className="bg-blue-600/20 text-blue-400 px-2 py-0.5 rounded text-xs">
                         {gen.character}
                       </span>
                     )}
                     {gen.environment && (
-                      <span className="bg-green-600/20 text-green-400 px-2 py-1 rounded text-xs">
+                      <span className="bg-green-600/20 text-green-400 px-2 py-0.5 rounded text-xs">
                         {gen.environment}
                       </span>
                     )}
                   </div>
-                  <p className="text-sm text-gray-300 line-clamp-2">{gen.prompt}</p>
-                  <p className="text-xs text-gray-500 mt-2">
-                    {new Date(gen.timestamp).toLocaleString()}
-                  </p>
+                  <p className="text-xs text-gray-400 line-clamp-2">{gen.prompt}</p>
                 </div>
               </div>
             ))}
           </div>
         )}
-      </main>
+      </div>
     </div>
   );
 }

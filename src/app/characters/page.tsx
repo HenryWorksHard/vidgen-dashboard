@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Link from 'next/link';
 
 interface Character {
   name: string;
@@ -31,40 +30,41 @@ export default function CharactersPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white">
-      <header className="border-b border-gray-800 px-6 py-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Link href="/" className="text-gray-400 hover:text-white">← Back</Link>
-            <h1 className="text-2xl font-bold">👤 Characters</h1>
-          </div>
-          <button className="bg-blue-600 px-4 py-2 rounded hover:bg-blue-700">
-            + New Character
-          </button>
+    <div className="h-full">
+      {/* Header */}
+      <header className="flex items-center justify-between px-6 py-4 border-b border-[#2a2a2a]">
+        <div>
+          <h1 className="text-lg font-semibold">Characters</h1>
+          <p className="text-sm text-gray-500">Manage character models with face references</p>
         </div>
+        <button className="px-4 py-2 text-sm bg-green-600 rounded-lg hover:bg-green-700 transition">
+          + Add Character
+        </button>
       </header>
 
-      <main className="p-6">
+      {/* Content */}
+      <div className="p-6">
         {loading ? (
-          <div className="text-center py-12">
-            <div className="animate-spin text-4xl">⏳</div>
-            <p className="mt-4 text-gray-400">Loading characters...</p>
+          <div className="flex items-center justify-center py-12">
+            <div className="animate-spin text-2xl">⏳</div>
           </div>
         ) : characters.length === 0 ? (
-          <div className="text-center py-12 bg-gray-800 rounded-lg">
-            <div className="text-6xl mb-4">👤</div>
-            <h2 className="text-xl font-semibold mb-2">No Characters Yet</h2>
-            <p className="text-gray-400 mb-4">Add face reference images to create your first character</p>
-            <code className="block bg-gray-900 p-3 rounded text-sm text-green-400">
+          <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl p-8 text-center">
+            <div className="text-4xl mb-3 opacity-50">👤</div>
+            <h3 className="font-medium mb-2">No Characters Yet</h3>
+            <p className="text-sm text-gray-400 mb-4">Add face reference images to create your first character</p>
+            <code className="block bg-[#0a0a0a] px-4 py-3 rounded-lg text-xs text-green-400 font-mono">
               mkdir -p ~/clawd/skills/vidgen/models/[name]/reference
             </code>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-4 gap-4">
             {characters.map((char) => (
-              <div key={char.name} className="bg-gray-800 rounded-lg overflow-hidden hover:ring-2 hover:ring-blue-500 transition">
-                {/* Thumbnail */}
-                <div className="aspect-square bg-gray-700 flex items-center justify-center">
+              <div 
+                key={char.name} 
+                className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl overflow-hidden hover:border-[#3a3a3a] transition cursor-pointer"
+              >
+                <div className="aspect-square bg-[#0a0a0a] flex items-center justify-center">
                   {char.thumbnail ? (
                     <img 
                       src={char.thumbnail} 
@@ -72,29 +72,20 @@ export default function CharactersPage() {
                       className="w-full h-full object-cover"
                     />
                   ) : (
-                    <span className="text-6xl">👤</span>
+                    <span className="text-4xl opacity-30">👤</span>
                   )}
                 </div>
-                
-                {/* Info */}
-                <div className="p-4">
-                  <h3 className="text-lg font-semibold capitalize">{char.config?.display_name || char.name}</h3>
-                  <p className="text-sm text-gray-400">
-                    {char.references?.length || 0} reference images
+                <div className="p-3">
+                  <h3 className="font-medium text-sm capitalize">{char.config?.display_name || char.name}</h3>
+                  <p className="text-xs text-gray-500 mt-1">
+                    {char.references?.length || 0} references
                   </p>
-                  {char.config?.description && (
-                    <p className="text-sm text-gray-500 mt-2 line-clamp-2">
-                      {typeof char.config.description === 'object' 
-                        ? JSON.stringify(char.config.description).slice(0, 100)
-                        : String(char.config.description).slice(0, 100)}
-                    </p>
-                  )}
                 </div>
               </div>
             ))}
           </div>
         )}
-      </main>
+      </div>
     </div>
   );
 }

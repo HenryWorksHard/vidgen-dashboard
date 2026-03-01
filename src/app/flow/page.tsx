@@ -1,175 +1,283 @@
 'use client';
 
-import { useState } from 'react';
-import Link from 'next/link';
+import { useState, useCallback } from 'react';
 
 interface FlowNode {
   id: string;
-  type: 'character' | 'wardrobe' | 'environment' | 'prompt' | 'image' | 'video';
-  label: string;
-  value?: string;
-  preview?: string;
-  status: 'pending' | 'processing' | 'complete' | 'error';
+  type: 'input' | 'scene' | 'video' | 'output';
+  title: string;
+  x: number;
+  y: number;
+  data?: {
+    image?: string;
+    label?: string;
+    settings?: Record<string, string>;
+  };
 }
 
-export default function FlowPage() {
-  const [nodes, setNodes] = useState<FlowNode[]>([
-    { id: '1', type: 'character', label: 'Character', value: 'james', status: 'complete' },
-    { id: '2', type: 'wardrobe', label: 'Wardrobe', value: 'streetwear', status: 'complete' },
-    { id: '3', type: 'environment', label: 'Environment', value: 'tokyo-night', status: 'complete' },
-    { id: '4', type: 'prompt', label: 'Prompt', value: 'walking through neon crowds, confident stride', status: 'complete' },
-    { id: '5', type: 'image', label: 'Image Output', status: 'pending' },
-    { id: '6', type: 'video', label: 'Video Output', status: 'pending' },
-  ]);
+const initialNodes: FlowNode[] = [
+  {
+    id: 'input',
+    type: 'input',
+    title: 'Input',
+    x: 80,
+    y: 100,
+    data: {
+      label: 'Character Reference',
+    },
+  },
+  {
+    id: 'scene',
+    type: 'scene',
+    title: 'Scene input',
+    x: 320,
+    y: 250,
+    data: {
+      settings: {
+        'Environment': 'tokyo-night',
+        'Wardrobe': 'streetwear',
+        'Style': 'cinematic',
+      },
+    },
+  },
+  {
+    id: 'video',
+    type: 'video',
+    title: 'Video input',
+    x: 600,
+    y: 100,
+    data: {
+      label: 'Generated Image',
+      settings: {
+        'Motion': 'walking',
+        'Duration': '5s',
+      },
+    },
+  },
+  {
+    id: 'output',
+    type: 'output',
+    title: 'Output',
+    x: 880,
+    y: 250,
+    data: {
+      label: 'Final Video',
+    },
+  },
+];
 
+const connections = [
+  { from: 'input', to: 'scene' },
+  { from: 'scene', to: 'video' },
+  { from: 'video', to: 'output' },
+];
+
+export default function FlowPage() {
+  const [nodes] = useState<FlowNode[]>(initialNodes);
   const [selectedNode, setSelectedNode] = useState<FlowNode | null>(null);
 
-  const getNodeColor = (type: FlowNode['type']) => {
-    switch (type) {
-      case 'character': return 'bg-blue-600 border-blue-400';
-      case 'wardrobe': return 'bg-purple-600 border-purple-400';
-      case 'environment': return 'bg-green-600 border-green-400';
-      case 'prompt': return 'bg-yellow-600 border-yellow-400';
-      case 'image': return 'bg-orange-600 border-orange-400';
-      case 'video': return 'bg-red-600 border-red-400';
-    }
-  };
-
-  const getNodeIcon = (type: FlowNode['type']) => {
-    switch (type) {
-      case 'character': return '👤';
-      case 'wardrobe': return '👔';
-      case 'environment': return '🌍';
-      case 'prompt': return '📝';
-      case 'image': return '📸';
-      case 'video': return '🎬';
-    }
-  };
-
-  const getStatusIndicator = (status: FlowNode['status']) => {
-    switch (status) {
-      case 'pending': return '⏳';
-      case 'processing': return '🔄';
-      case 'complete': return '✅';
-      case 'error': return '❌';
-    }
-  };
+  const getNodePosition = useCallback((nodeId: string) => {
+    const node = nodes.find(n => n.id === nodeId);
+    return node ? { x: node.x + 100, y: node.y + 60 } : { x: 0, y: 0 };
+  }, [nodes]);
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white">
-      <header className="border-b border-gray-800 px-6 py-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Link href="/" className="text-gray-400 hover:text-white">← Back</Link>
-            <h1 className="text-2xl font-bold">🔀 Generation Flow</h1>
-          </div>
-          <div className="flex gap-4">
-            <button className="bg-gray-700 px-4 py-2 rounded hover:bg-gray-600">
-              Load Generation
-            </button>
-            <button className="bg-blue-600 px-4 py-2 rounded hover:bg-blue-700">
-              Run Flow
-            </button>
-          </div>
+    <div className="h-full flex flex-col">
+      {/* Header */}
+      <header className="flex items-center justify-between px-6 py-4 border-b border-[#2a2a2a]">
+        <div>
+          <h1 className="text-lg font-semibold">Generation Flow</h1>
+          <p className="text-sm text-gray-500">Design your video generation pipeline</p>
+        </div>
+        <div className="flex gap-3">
+          <button className="px-4 py-2 text-sm bg-[#2a2a2a] rounded-lg hover:bg-[#3a3a3a] transition">
+            Load Template
+          </button>
+          <button className="px-4 py-2 text-sm bg-green-600 rounded-lg hover:bg-green-700 transition">
+            Run Generation
+          </button>
         </div>
       </header>
 
-      <main className="p-6">
-        {/* Flow Canvas */}
-        <div className="bg-gray-800 rounded-lg p-8 min-h-[600px] relative overflow-hidden">
-          {/* Grid Background */}
-          <div 
-            className="absolute inset-0 opacity-10"
+      {/* Canvas */}
+      <div className="flex-1 relative overflow-hidden bg-[#0a0a0a]">
+        {/* Grid Pattern */}
+        <svg className="absolute inset-0 w-full h-full" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+              <circle cx="1" cy="1" r="0.5" fill="#333" />
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#grid)" />
+        </svg>
+
+        {/* Connection Lines */}
+        <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ zIndex: 1 }}>
+          {connections.map((conn, i) => {
+            const from = getNodePosition(conn.from);
+            const to = getNodePosition(conn.to);
+            const midX = (from.x + to.x) / 2;
+            
+            return (
+              <g key={i}>
+                <path
+                  d={`M ${from.x} ${from.y} C ${midX} ${from.y}, ${midX} ${to.y}, ${to.x} ${to.y}`}
+                  stroke="#444"
+                  strokeWidth="2"
+                  fill="none"
+                />
+                {/* Animated dot */}
+                <circle r="4" fill="#666">
+                  <animateMotion
+                    dur="3s"
+                    repeatCount="indefinite"
+                    path={`M ${from.x} ${from.y} C ${midX} ${from.y}, ${midX} ${to.y}, ${to.x} ${to.y}`}
+                  />
+                </circle>
+              </g>
+            );
+          })}
+        </svg>
+
+        {/* Nodes */}
+        {nodes.map((node) => (
+          <div
+            key={node.id}
+            className={`absolute bg-[#1a1a1a] border border-[#333] rounded-xl overflow-hidden cursor-pointer transition-all hover:border-[#555] ${
+              selectedNode?.id === node.id ? 'ring-2 ring-blue-500 border-blue-500' : ''
+            }`}
             style={{
-              backgroundImage: 'radial-gradient(circle, #ffffff 1px, transparent 1px)',
-              backgroundSize: '20px 20px'
+              left: node.x,
+              top: node.y,
+              width: 200,
+              zIndex: 2,
             }}
-          />
-
-          {/* Flow Nodes */}
-          <div className="relative flex items-center justify-center gap-4 flex-wrap">
-            {nodes.map((node, index) => (
-              <div key={node.id} className="flex items-center">
-                {/* Node */}
-                <div 
-                  className={`
-                    ${getNodeColor(node.type)} 
-                    border-2 rounded-lg p-4 min-w-[160px] cursor-pointer
-                    transform transition hover:scale-105 hover:shadow-xl
-                    ${selectedNode?.id === node.id ? 'ring-4 ring-white' : ''}
-                  `}
-                  onClick={() => setSelectedNode(node)}
-                >
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-2xl">{getNodeIcon(node.type)}</span>
-                    <span>{getStatusIndicator(node.status)}</span>
-                  </div>
-                  <h3 className="font-semibold">{node.label}</h3>
-                  {node.value && (
-                    <p className="text-sm opacity-80 mt-1 truncate">{node.value}</p>
-                  )}
-                </div>
-
-                {/* Connector Arrow */}
-                {index < nodes.length - 1 && (
-                  <div className="mx-4 text-gray-500 text-2xl">→</div>
-                )}
+            onClick={() => setSelectedNode(node)}
+          >
+            {/* Node Header */}
+            <div className="px-3 py-2 bg-[#222] border-b border-[#333] flex items-center justify-between">
+              <span className="text-xs font-medium text-gray-300">{node.title}</span>
+              <div className="flex gap-1">
+                <button className="w-5 h-5 rounded bg-[#333] hover:bg-[#444] flex items-center justify-center text-xs">
+                  ⚙️
+                </button>
               </div>
-            ))}
-          </div>
-
-          {/* Connection Lines (SVG overlay) */}
-          <svg className="absolute inset-0 pointer-events-none" style={{ zIndex: -1 }}>
-            {/* Add bezier curves between nodes if needed */}
-          </svg>
-        </div>
-
-        {/* Node Details Panel */}
-        {selectedNode && (
-          <div className="mt-6 bg-gray-800 rounded-lg p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-semibold flex items-center gap-2">
-                <span className="text-2xl">{getNodeIcon(selectedNode.type)}</span>
-                {selectedNode.label}
-              </h2>
-              <button 
-                className="text-gray-400 hover:text-white"
-                onClick={() => setSelectedNode(null)}
-              >
-                ✕
-              </button>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm text-gray-400 mb-1">Type</label>
-                <p className="capitalize">{selectedNode.type}</p>
-              </div>
-              <div>
-                <label className="block text-sm text-gray-400 mb-1">Status</label>
-                <p className="flex items-center gap-2">
-                  {getStatusIndicator(selectedNode.status)}
-                  <span className="capitalize">{selectedNode.status}</span>
-                </p>
-              </div>
-              {selectedNode.value && (
-                <div className="col-span-2">
-                  <label className="block text-sm text-gray-400 mb-1">Value</label>
-                  <p className="bg-gray-900 p-3 rounded">{selectedNode.value}</p>
+            {/* Node Content */}
+            <div className="p-3">
+              {node.data?.image ? (
+                <div className="aspect-square bg-[#2a2a2a] rounded-lg mb-2 flex items-center justify-center">
+                  <img src={node.data.image} alt="" className="w-full h-full object-cover rounded-lg" />
+                </div>
+              ) : (
+                <div className="aspect-square bg-[#2a2a2a] rounded-lg mb-2 flex items-center justify-center">
+                  <span className="text-3xl opacity-50">
+                    {node.type === 'input' && '👤'}
+                    {node.type === 'scene' && '📝'}
+                    {node.type === 'video' && '🎬'}
+                    {node.type === 'output' && '📹'}
+                  </span>
+                </div>
+              )}
+
+              {node.data?.label && (
+                <p className="text-xs text-gray-400 text-center">{node.data.label}</p>
+              )}
+
+              {node.data?.settings && (
+                <div className="mt-2 space-y-1">
+                  {Object.entries(node.data.settings).map(([key, value]) => (
+                    <div key={key} className="flex justify-between text-xs">
+                      <span className="text-gray-500">{key}</span>
+                      <span className="text-gray-300">{value}</span>
+                    </div>
+                  ))}
                 </div>
               )}
             </div>
-          </div>
-        )}
 
-        {/* Generation History */}
-        <div className="mt-6">
-          <h2 className="text-xl font-semibold mb-4">Recent Generations</h2>
-          <div className="bg-gray-800 rounded-lg p-4">
-            <p className="text-gray-400">No generation history yet.</p>
+            {/* Connection Points */}
+            <div className="absolute top-1/2 -left-2 w-4 h-4 bg-[#333] border-2 border-[#555] rounded-full transform -translate-y-1/2" />
+            <div className="absolute top-1/2 -right-2 w-4 h-4 bg-[#333] border-2 border-[#555] rounded-full transform -translate-y-1/2" />
+          </div>
+        ))}
+
+        {/* Toolbar */}
+        <div className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-[#1a1a1a] border border-[#333] rounded-lg p-2 flex flex-col gap-2" style={{ zIndex: 10 }}>
+          <button className="w-8 h-8 rounded bg-[#2a2a2a] hover:bg-[#3a3a3a] flex items-center justify-center text-sm" title="Add Node">
+            ➕
+          </button>
+          <button className="w-8 h-8 rounded bg-[#2a2a2a] hover:bg-[#3a3a3a] flex items-center justify-center text-sm" title="Run">
+            ▶️
+          </button>
+          <div className="border-t border-[#333] my-1" />
+          <button className="w-8 h-8 rounded bg-[#2a2a2a] hover:bg-[#3a3a3a] flex items-center justify-center text-sm" title="Edit">
+            ✂️
+          </button>
+          <button className="w-8 h-8 rounded bg-[#2a2a2a] hover:bg-[#3a3a3a] flex items-center justify-center text-sm" title="Draw">
+            ✏️
+          </button>
+          <button className="w-8 h-8 rounded bg-[#2a2a2a] hover:bg-[#3a3a3a] flex items-center justify-center text-sm" title="Comment">
+            💬
+          </button>
+          <div className="border-t border-[#333] my-1" />
+          <button className="w-8 h-8 rounded bg-[#2a2a2a] hover:bg-[#3a3a3a] flex items-center justify-center text-sm" title="Undo">
+            ↩️
+          </button>
+          <button className="w-8 h-8 rounded bg-[#2a2a2a] hover:bg-[#3a3a3a] flex items-center justify-center text-sm" title="Redo">
+            ↪️
+          </button>
+          <button className="w-8 h-8 rounded bg-[#2a2a2a] hover:bg-[#3a3a3a] flex items-center justify-center text-sm" title="Settings">
+            ⚙️
+          </button>
+        </div>
+
+        {/* Zoom Controls */}
+        <div className="absolute bottom-4 right-4 flex items-center gap-2 bg-[#1a1a1a] border border-[#333] rounded-lg px-3 py-2" style={{ zIndex: 10 }}>
+          <span className="text-xs text-gray-400">100%</span>
+        </div>
+      </div>
+
+      {/* Properties Panel */}
+      {selectedNode && (
+        <div className="absolute right-0 top-0 bottom-0 w-72 bg-[#141414] border-l border-[#2a2a2a] p-4 overflow-auto" style={{ marginTop: '65px' }}>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-medium">{selectedNode.title}</h3>
+            <button 
+              onClick={() => setSelectedNode(null)}
+              className="text-gray-400 hover:text-white"
+            >
+              ✕
+            </button>
+          </div>
+          
+          <div className="space-y-4">
+            <div>
+              <label className="block text-xs text-gray-400 mb-1">Node Type</label>
+              <p className="text-sm capitalize">{selectedNode.type}</p>
+            </div>
+
+            {selectedNode.data?.settings && (
+              <div>
+                <label className="block text-xs text-gray-400 mb-2">Settings</label>
+                <div className="space-y-2">
+                  {Object.entries(selectedNode.data.settings).map(([key, value]) => (
+                    <div key={key}>
+                      <label className="block text-xs text-gray-500 mb-1">{key}</label>
+                      <input
+                        type="text"
+                        defaultValue={value}
+                        className="w-full bg-[#2a2a2a] border border-[#333] rounded px-3 py-2 text-sm"
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
-      </main>
+      )}
     </div>
   );
 }
