@@ -13,10 +13,10 @@ export default function Home() {
           <p className="text-sm text-gray-500">Upload 1 image → Get complete video</p>
         </div>
         <Link 
-          href="/flow"
+          href="/generate"
           className="px-4 py-2 text-sm bg-green-600 rounded-lg hover:bg-green-700 transition"
         >
-          Open Pipeline →
+          🎬 Generate Video →
         </Link>
       </header>
 

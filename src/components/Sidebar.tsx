@@ -5,7 +5,8 @@ import { usePathname } from 'next/navigation';
 
 const navItems = [
   { href: '/', icon: '🏠', label: 'Home' },
-  { href: '/flow', icon: '🔀', label: 'Generation Flow' },
+  { href: '/generate', icon: '🎬', label: 'Generate Video', highlight: true },
+  { href: '/flow', icon: '🔀', label: 'Pipeline View' },
   { href: '/gallery', icon: '🖼️', label: 'Gallery' },
 ];
 
@@ -38,7 +39,11 @@ export default function Sidebar() {
               href={item.href}
               className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
                 pathname === item.href
-                  ? 'bg-[#2a2a2a] text-white'
+                  ? 'highlight' in item && item.highlight
+                    ? 'bg-green-600 text-white'
+                    : 'bg-[#2a2a2a] text-white'
+                  : 'highlight' in item && item.highlight
+                  ? 'bg-green-600/20 text-green-400 hover:bg-green-600/30'
                   : 'text-gray-400 hover:text-white hover:bg-[#1f1f1f]'
               }`}
             >
