@@ -12,8 +12,8 @@ const navItems = [
 const assetItems = [
   { href: '/characters', icon: '👤', label: 'Characters' },
   { href: '/wardrobes', icon: '👔', label: 'Wardrobes' },
+  { href: '/products', icon: '📦', label: 'Products' },
   { href: '/environments', icon: '🌍', label: 'Environments' },
-  { href: '/styles', icon: '🎨', label: 'Styles' },
 ];
 
 export default function Sidebar() {
